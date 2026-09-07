@@ -1,193 +1,355 @@
 /* ======================================================================
-   KONFIGURASI BACKEND (Google Apps Script Web App)
+   KONFIGURASI BACKEND
    ----------------------------------------------------------------------
-   1. Buat Google Sheet baru (ini akan jadi database pendaftar).
-   2. Buka menu Extensions > Apps Script.
-   3. Ikuti panduan lengkap di file SETUP.md yang ada satu paket dengan
-      file ini untuk mengisi kode backend dan men-deploy-nya sebagai
-      Web App.
-   4. Setelah deploy, kamu akan dapat URL seperti:
-      https://script.google.com/macros/s/XXXXXXXX/exec
-      Tempel URL itu ke APPS_SCRIPT_URL di bawah ini.
-
-   PENTING: URL ini boleh terlihat publik (tidak masalah), karena semua
-   validasi login admin dan penyimpanan data diproses di server Google
-   Apps Script, bukan di file ini. Yang tidak boleh bocor adalah
-   username/password admin dan SECRET_KEY, dan itu semua disimpan di
-   Script Properties Apps Script, BUKAN di file ini.
+   Isi dengan URL Web App Apps Script yang SAMA PERSIS dengan yang
+   dipakai di website pendaftaran (script.js). Panduan lengkap ada di
+   SETUP.md.
    ====================================================================== */
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQSBhasUBzhhQnXWN2ernSVZLUlWG_ezi-WrhpfQZIEl4Oob8NLiRktKrNawkds_7d/exec";
 
-const TEAM_LOMBA = ["LCCU", "FUTSAL"];
+const SESSION_KEYS = {
+  token: 'icosa14_admin_token',
+  expiry: 'icosa14_admin_token_expiry',
+  role: 'icosa14_admin_role',
+  lombaList: 'icosa14_admin_lomba_list'
+};
 
-const form = document.getElementById('regForm');
-const submitBtn = document.getElementById('submitBtn');
-const statusText = document.getElementById('statusText');
-const receipt = document.getElementById('receipt');
-const lombaSelect = document.getElementById('lomba');
-const teamSection = document.getElementById('teamSection');
-const teamMembersList = document.getElementById('teamMembersList');
-const addMemberBtn = document.getElementById('addMemberBtn');
-const teamMemberTemplate = document.getElementById('teamMemberTemplate');
+const LOMBA_LABELS = {
+  'MHQ': 'MHQ',
+  'BADMINTON': 'Badminton',
+  'LCCU': 'LCCU',
+  'KALIGRAFI': 'Kaligrafi',
+  'PIDATO': 'Pidato',
+  'FUTSAL': 'Futsal',
+  'POSTER DIGITAL': 'Poster Digital'
+};
 
-let memberCounter = 0;
+const loginScreen = document.getElementById('loginScreen');
+const dashboard = document.getElementById('dashboard');
+const loginForm = document.getElementById('loginForm');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const logoutBtn = document.getElementById('logoutBtn');
+const roleLabel = document.getElementById('roleLabel');
+const tabsNav = document.getElementById('tabs');
+const panelCount = document.getElementById('panelCount');
+const refreshBtn = document.getElementById('refreshBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+const tableWrap = document.getElementById('tableWrap');
+const emptyState = document.getElementById('emptyState');
+const dataTable = document.getElementById('dataTable');
+const tableHead = document.getElementById('tableHead');
+const tableBody = document.getElementById('tableBody');
 
-function setFieldError(field, hasError){
-  field.closest('.field').classList.toggle('error', hasError);
+let currentLomba = null;
+let currentHeaders = [];
+let currentRows = [];
+let currentRowNumbers = [];
+let selectedRows = new Set();
+
+function getToken(){ return sessionStorage.getItem(SESSION_KEYS.token); }
+function getTokenExpiry(){ return Number(sessionStorage.getItem(SESSION_KEYS.expiry) || 0); }
+function getRole(){ return sessionStorage.getItem(SESSION_KEYS.role); }
+function getLombaList(){
+  try{ return JSON.parse(sessionStorage.getItem(SESSION_KEYS.lombaList) || '[]'); }
+  catch(e){ return []; }
 }
 
-function isTeamLomba(){
-  return TEAM_LOMBA.includes(lombaSelect.value);
+function isSessionValid(){
+  return getToken() && Date.now() < getTokenExpiry() && getLombaList().length > 0;
 }
 
-function updateTeamSectionVisibility(){
-  const show = isTeamLomba();
-  teamSection.classList.toggle('hidden', !show);
-  if(!show){
-    teamMembersList.innerHTML = '';
-    memberCounter = 0;
-  } else if(teamMembersList.children.length === 0){
-    addTeamMember();
-  }
+function showDashboard(){
+  loginScreen.classList.add('hidden');
+  dashboard.classList.remove('hidden');
+
+  const role = getRole();
+  roleLabel.textContent = 'PANITIA · DATA PENDAFTAR' + (role === 'AKHWAT' ? ' (AKHWAT)' : ' (IKHWAN)');
+
+  buildTabs();
 }
 
-function addTeamMember(){
-  memberCounter++;
-  const node = teamMemberTemplate.content.cloneNode(true);
-  const wrapper = node.querySelector('.team-member');
-  wrapper.querySelector('.team-member-title').textContent = 'Anggota ' + memberCounter;
-  wrapper.querySelectorAll('input[required]').forEach(el => {
-    el.addEventListener('input', () => setFieldError(el, false));
-  });
-  wrapper.querySelector('.remove-member').addEventListener('click', () => {
-    wrapper.remove();
-    renumberTeamMembers();
-  });
-  teamMembersList.appendChild(node);
+function showLogin(message){
+  dashboard.classList.add('hidden');
+  loginScreen.classList.remove('hidden');
+  loginError.textContent = message || '';
+  Object.values(SESSION_KEYS).forEach(k => sessionStorage.removeItem(k));
 }
 
-function renumberTeamMembers(){
-  const blocks = teamMembersList.querySelectorAll('.team-member');
-  blocks.forEach((block, idx) => {
-    block.querySelector('.team-member-title').textContent = 'Anggota ' + (idx + 1);
-  });
-  memberCounter = blocks.length;
-}
+/* ---------------- LOGIN ---------------- */
 
-lombaSelect.addEventListener('change', updateTeamSectionVisibility);
-addMemberBtn.addEventListener('click', addTeamMember);
-
-form.querySelectorAll('[required]').forEach(el => {
-  el.addEventListener('input', () => setFieldError(el, false));
-  el.addEventListener('change', () => setFieldError(el, false));
-});
-
-function validate(){
-  let valid = true;
-
-  // Semua field required di luar blok anggota tim (lomba, identitas, kontak)
-  document.querySelectorAll('form [required]').forEach(el => {
-    if(el.closest('.team-member')) return; // handled separately below
-    const ok = el.value.trim().length > 0 && el.checkValidity();
-    setFieldError(el, !ok);
-    if(!ok) valid = false;
-  });
-
-  if(isTeamLomba()){
-    const members = teamMembersList.querySelectorAll('.team-member');
-    if(members.length === 0){
-      valid = false;
-    }
-    members.forEach(member => {
-      member.querySelectorAll('input[required]').forEach(el => {
-        const ok = el.value.trim().length > 0 && el.checkValidity();
-        setFieldError(el, !ok);
-        if(!ok) valid = false;
-      });
-    });
-  }
-
-  return valid;
-}
-
-function collectTeamMembers(){
-  if(!isTeamLomba()) return [];
-  const members = [];
-  teamMembersList.querySelectorAll('.team-member').forEach(block => {
-    members.push({
-      nama_lengkap: block.querySelector('.tm-nama_lengkap').value.trim(),
-      nisn: block.querySelector('.tm-nisn').value.trim(),
-      kelas: block.querySelector('.tm-kelas').value.trim(),
-      asal_sekolah: block.querySelector('.tm-asal_sekolah').value.trim(),
-      tanggal_lahir: block.querySelector('.tm-tanggal_lahir').value.trim()
-    });
-  });
-  return members;
-}
-
-form.addEventListener('submit', async (e) => {
+loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  receipt.classList.remove('show');
+  loginError.textContent = '';
 
   if(APPS_SCRIPT_URL.includes('PASTE_URL')){
-    statusText.textContent = "Backend belum dikonfigurasi. Hubungi admin website.";
-    statusText.className = "status err";
+    loginError.textContent = 'Backend belum dikonfigurasi (APPS_SCRIPT_URL kosong).';
     return;
   }
 
-  if(!validate()){
-    statusText.textContent = "Beberapa data belum lengkap atau belum sesuai format.";
-    statusText.className = "status err";
-    return;
-  }
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
 
-  const fd = new FormData(form);
-  const data = Object.fromEntries(fd.entries());
-  const payload = {
-    action: 'register',
-    lomba: data.lomba,
-    nama_lengkap: data.nama_lengkap,
-    nama_panggilan: data.nama_panggilan,
-    nisn: data.nisn,
-    kelas: data.kelas,
-    asal_sekolah: data.asal_sekolah,
-    tanggal_lahir: data.tanggal_lahir,
-    wa: data.wa,
-    email: data.email,
-    alamat: data.alamat,
-    pesan: data.pesan,
-    anggota_tim: collectTeamMembers()
-  };
-
-  submitBtn.disabled = true;
-  statusText.textContent = "Mengirim data ke panitia...";
-  statusText.className = "status";
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Memeriksa...';
 
   try{
-    // Content-Type text/plain menghindari CORS preflight pada Google Apps Script.
     const res = await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'login', username, password })
     });
-
     const result = await res.json();
 
     if(result.ok){
-      statusText.textContent = "Terkirim.";
-      statusText.className = "status ok";
-      receipt.classList.add('show');
-      form.reset();
-      teamMembersList.innerHTML = '';
-      memberCounter = 0;
-      teamSection.classList.add('hidden');
+      sessionStorage.setItem(SESSION_KEYS.token, result.token);
+      sessionStorage.setItem(SESSION_KEYS.expiry, String(result.expiry));
+      sessionStorage.setItem(SESSION_KEYS.role, result.role);
+      sessionStorage.setItem(SESSION_KEYS.lombaList, JSON.stringify(result.lombaList || []));
+      loginForm.reset();
+      showDashboard();
     } else {
-      throw new Error(result.error || 'Gagal menyimpan data');
+      loginError.textContent = result.error || 'Login gagal.';
     }
   } catch(err){
-    statusText.textContent = "Gagal mengirim (" + err.message + "). Coba lagi sebentar lagi.";
-    statusText.className = "status err";
+    loginError.textContent = 'Gagal terhubung ke server (' + err.message + ').';
   } finally {
-    submitBtn.disabled = false;
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Masuk';
   }
 });
+
+logoutBtn.addEventListener('click', () => {
+  showLogin('');
+});
+
+/* ---------------- TABS (dibangun sesuai akun yang login) ---------------- */
+
+function buildTabs(){
+  const lombaList = getLombaList();
+  tabsNav.innerHTML = '';
+
+  lombaList.forEach((lomba, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (idx === 0 ? ' active' : '');
+    btn.dataset.lomba = lomba;
+    btn.textContent = LOMBA_LABELS[lomba] || lomba;
+    tabsNav.appendChild(btn);
+  });
+
+  currentLomba = lombaList[0] || null;
+  if(currentLomba) loadLombaData(currentLomba);
+}
+
+tabsNav.addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  tabsNav.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentLomba = btn.dataset.lomba;
+  loadLombaData(currentLomba);
+});
+
+refreshBtn.addEventListener('click', () => currentLomba && loadLombaData(currentLomba));
+
+/* ---------------- LOAD DATA ---------------- */
+
+async function loadLombaData(lomba){
+  if(!isSessionValid()){
+    showLogin('Sesi berakhir, silakan login ulang.');
+    return;
+  }
+
+  selectedRows = new Set();
+  updateDeleteButton();
+
+  emptyState.textContent = 'Memuat data pendaftar...';
+  emptyState.classList.remove('hidden');
+  dataTable.classList.add('hidden');
+  panelCount.textContent = 'Memuat data...';
+  downloadBtn.disabled = true;
+
+  try{
+    const url = APPS_SCRIPT_URL
+      + '?action=getData'
+      + '&lomba=' + encodeURIComponent(lomba)
+      + '&token=' + encodeURIComponent(getToken());
+
+    const res = await fetch(url, { method: 'GET' });
+    const result = await res.json();
+
+    if(!result.ok){
+      if((result.error || '').toLowerCase().includes('sesi')){
+        showLogin(result.error);
+        return;
+      }
+      emptyState.textContent = 'Gagal memuat data: ' + (result.error || 'error tidak diketahui');
+      panelCount.textContent = '';
+      return;
+    }
+
+    currentHeaders = result.headers || [];
+    currentRows = result.rows || [];
+    currentRowNumbers = result.rowNumbers || [];
+    renderTable();
+  } catch(err){
+    emptyState.textContent = 'Gagal terhubung ke server (' + err.message + ').';
+    panelCount.textContent = '';
+  }
+}
+
+function renderTable(){
+  const label = LOMBA_LABELS[currentLomba] || currentLomba;
+  panelCount.textContent = currentRows.length + ' baris — ' + label;
+
+  if(currentRows.length === 0){
+    emptyState.textContent = 'Belum ada pendaftar untuk lomba ini.';
+    emptyState.classList.remove('hidden');
+    dataTable.classList.add('hidden');
+    downloadBtn.disabled = true;
+    return;
+  }
+
+  emptyState.classList.add('hidden');
+  dataTable.classList.remove('hidden');
+  downloadBtn.disabled = false;
+
+  const headRow = document.createElement('tr');
+  const selectTh = document.createElement('th');
+  selectTh.className = 'select-col';
+  const selectAllCb = document.createElement('input');
+  selectAllCb.type = 'checkbox';
+  selectAllCb.id = 'selectAllCb';
+  selectAllCb.addEventListener('change', () => {
+    if(selectAllCb.checked){
+      currentRowNumbers.forEach(rn => selectedRows.add(rn));
+    } else {
+      selectedRows.clear();
+    }
+    renderTable();
+  });
+  selectTh.appendChild(selectAllCb);
+  headRow.appendChild(selectTh);
+
+  currentHeaders.forEach(h => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    headRow.appendChild(th);
+  });
+  tableHead.innerHTML = '';
+  tableHead.appendChild(headRow);
+
+  tableBody.innerHTML = '';
+  currentRows.forEach((row, idx) => {
+    const rowNumber = currentRowNumbers[idx];
+    const tr = document.createElement('tr');
+    if(selectedRows.has(rowNumber)) tr.classList.add('row-selected');
+
+    const selectTd = document.createElement('td');
+    selectTd.className = 'select-col';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.checked = selectedRows.has(rowNumber);
+    cb.addEventListener('change', () => {
+      if(cb.checked) selectedRows.add(rowNumber);
+      else selectedRows.delete(rowNumber);
+      tr.classList.toggle('row-selected', cb.checked);
+      updateDeleteButton();
+    });
+    selectTd.appendChild(cb);
+    tr.appendChild(selectTd);
+
+    currentHeaders.forEach(h => {
+      const td = document.createElement('td');
+      const val = row[h] !== undefined && row[h] !== null ? row[h] : '';
+      td.textContent = val;
+      td.title = val;
+      tr.appendChild(td);
+    });
+
+    tableBody.appendChild(tr);
+  });
+
+  updateDeleteButton();
+}
+
+function updateDeleteButton(){
+  const n = selectedRows.size;
+  deleteSelectedBtn.textContent = 'Hapus Terpilih (' + n + ')';
+  deleteSelectedBtn.disabled = n === 0;
+}
+
+/* ---------------- HAPUS DATA TERPILIH ---------------- */
+
+deleteSelectedBtn.addEventListener('click', () => {
+  const n = selectedRows.size;
+  if(n === 0) return;
+  const sure = window.confirm('Hapus ' + n + ' baris data dari ' + (LOMBA_LABELS[currentLomba] || currentLomba) + '? Tindakan ini tidak bisa dibatalkan.');
+  if(sure) deleteSelectedRows();
+});
+
+async function deleteSelectedRows(){
+  if(!isSessionValid()){
+    showLogin('Sesi berakhir, silakan login ulang.');
+    return;
+  }
+
+  deleteSelectedBtn.disabled = true;
+  deleteSelectedBtn.textContent = 'Menghapus...';
+
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'deleteRows',
+        token: getToken(),
+        lomba: currentLomba,
+        rowNumbers: Array.from(selectedRows)
+      })
+    });
+    const result = await res.json();
+
+    if(result.ok){
+      loadLombaData(currentLomba);
+    } else {
+      if((result.error || '').toLowerCase().includes('sesi')){
+        showLogin(result.error);
+        return;
+      }
+      alert('Gagal menghapus: ' + (result.error || 'error tidak diketahui'));
+      updateDeleteButton();
+    }
+  } catch(err){
+    alert('Gagal terhubung ke server (' + err.message + ').');
+    updateDeleteButton();
+  }
+}
+
+/* ---------------- DOWNLOAD EXCEL ---------------- */
+
+downloadBtn.addEventListener('click', () => {
+  if(currentRows.length === 0) return;
+
+  const aoa = [currentHeaders];
+  currentRows.forEach(row => {
+    aoa.push(currentHeaders.map(h => row[h] !== undefined && row[h] !== null ? row[h] : ''));
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const wb = XLSX.utils.book_new();
+  const sheetLabel = (LOMBA_LABELS[currentLomba] || currentLomba).substring(0, 31);
+  XLSX.utils.book_append_sheet(wb, ws, sheetLabel);
+
+  const fileName = 'Pendaftar_' + currentLomba.replace(/\s+/g, '_') + '.xlsx';
+  XLSX.writeFile(wb, fileName);
+});
+
+/* ---------------- INIT ---------------- */
+
+if(isSessionValid()){
+  showDashboard();
+} else {
+  showLogin('');
+}
