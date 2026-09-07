@@ -16,7 +16,7 @@
    username/password admin dan SECRET_KEY, dan itu semua disimpan di
    Script Properties Apps Script, BUKAN di file ini.
    ====================================================================== */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxeJJmDdrXFZnuN-FOaYnh_bREJjvcH-Zg5pb9vW5BrtyWob2wGpT7zzuyrMASEBoYC/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQSBhasUBzhhQnXWN2ernSVZLUlWG_ezi-WrhpfQZIEl4Oob8NLiRktKrNawkds_7d/exec";
 
 const TEAM_LOMBA = ["LCCU", "FUTSAL"];
 
