@@ -2,180 +2,103 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formulir Pendaftaran Lomba — ICOSA 14</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pendaftaran Lomba ICOSA 14 - Darul Hikmah</title>
+<link rel="icon" type="image/x-icon" href="/icon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="sheet">
-
-  <header class="masthead">
-    <svg class="seal" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="32" r="30" stroke="#93712F" stroke-width="1.4"/>
-      <circle cx="32" cy="32" r="24" stroke="#93712F" stroke-width="1"/>
-      <path d="M32 16 L36.5 27 L48 27 L38.7 33.6 L42.2 45 L32 38 L21.8 45 L25.3 33.6 L16 27 L27.5 27 Z" stroke="#93712F" stroke-width="1.2" fill="none"/>
-    </svg>
-    <p class="kicker">FORMULIR RESMI · PENDAFTARAN PESERTA ICOSA 14</p>
-    <h1>Pendaftaran Lomba</h1>
-    <p class="lede">Lengkapi data di bawah ini dengan benar. Data akan diteruskan ke panitia secara otomatis segera setelah formulir dikirim.</p>
-  </header>
-
-  <form id="regForm" novalidate>
-
-    <p class="section-title">Kategori & Lomba</p>
-    <p class="section-note">Pilih golongan terlebih dahulu untuk melihat daftar lomba yang tersedia.</p>
-    <div class="grid">
-      <div class="field">
-        <label for="golongan">Golongan</label>
-        <select id="golongan" name="golongan" required>
-          <option value="" disabled selected>— Pilih Golongan —</option>
-          <option value="Ikhwan">Ikhwan (Laki-laki)</option>
-          <option value="Akhwat">Akhwat (Perempuan)</option>
-        </select>
-        <span class="field-error">Silakan pilih golongan.</span>
-      </div>
-
-      <div class="field">
-        <label for="lomba">Pilih lomba</label>
-        <select id="lomba" name="lomba" required disabled>
-          <option value="" disabled selected>— Pilih Golongan Dahulu —</option>
-        </select>
-        <span class="field-error">Silakan pilih lomba yang diikuti.</span>
-      </div>
-    </div>
-
-    <p class="section-title">Identitas Peserta</p>
-    <p class="section-note">Isi sesuai dokumen sekolah. Untuk lomba beregu, ini adalah data ketua tim / penanggung jawab.</p>
-    <div class="grid">
-      <div class="field">
-        <label for="nama_lengkap">Nama lengkap</label>
-        <input type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Sesuai kartu pelajar" required>
-        <span class="field-error">Nama lengkap wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label for="nama_panggilan">Nama panggilan</label>
-        <input type="text" id="nama_panggilan" name="nama_panggilan" placeholder="Nama panggilan" required>
-        <span class="field-error">Nama panggilan wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label for="nisn">NIS / NISN</label>
-        <input type="text" id="nisn" name="nisn" inputmode="numeric" placeholder="Nomor induk siswa" required>
-        <span class="field-error">NIS/NISN wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label for="kelas">Kelas</label>
-        <input type="text" id="kelas" name="kelas" placeholder="Contoh: XI IPA 2" required>
-        <span class="field-error">Kelas wajib diisi.</span>
-      </div>
-      <div class="field full">
-        <label for="asal_sekolah">Asal sekolah</label>
-        <input type="text" id="asal_sekolah" name="asal_sekolah" placeholder="Nama sekolah lengkap" required>
-        <span class="field-error">Asal sekolah wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label for="tanggal_lahir">Tanggal lahir</label>
-        <input type="date" id="tanggal_lahir" name="tanggal_lahir" required>
-        <span class="field-error">Tanggal lahir wajib diisi.</span>
-      </div>
-    </div>
-
-    <div id="teamSection" class="team-section hidden">
-      <p class="section-title">Anggota Tim</p>
-      <p class="section-note">Tambahkan anggota tim satu per satu. Data ketua tim di atas tidak perlu diulang di sini.</p>
-      <div id="teamMembersList"></div>
-      <button type="button" class="add-member" id="addMemberBtn">+ Tambah Anggota Tim</button>
-    </div>
-
-    <p class="section-title">Kontak & Pembimbing</p>
-    <p class="section-note">Digunakan panitia untuk koordinasi dan pengiriman informasi teknis lomba.</p>
-    <div class="grid">
-      <div class="field">
-        <label for="wa">Nomor HP / WhatsApp Peserta</label>
-        <input type="tel" id="wa" name="wa" placeholder="08xx xxxx xxxx" required>
-        <span class="field-error">Nomor HP/WhatsApp wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label for="email">Email Peserta</label>
-        <input type="email" id="email" name="email" placeholder="nama@email.com" required>
-        <span class="field-error">Masukkan email yang valid.</span>
-      </div>
-      <div class="field">
-        <label for="nama_pembimbing">Nama Pembimbing <span class="opt">opsional</span></label>
-        <input type="text" id="nama_pembimbing" name="nama_pembimbing" placeholder="Nama guru / pembimbing">
-      </div>
-      <div class="field">
-        <label for="wa_pembimbing">Nomor WA Pembimbing <span class="opt">opsional</span></label>
-        <input type="tel" id="wa_pembimbing" name="wa_pembimbing" placeholder="08xx xxxx xxxx">
-      </div>
-      <div class="field full">
-        <label for="alamat">Alamat</label>
-        <input type="text" id="alamat" name="alamat" placeholder="Alamat domisili saat ini" required>
-        <span class="field-error">Alamat wajib diisi.</span>
-      </div>
-    </div>
-
-    <p class="section-title">Catatan</p>
-    <p class="section-note">Bagian ini tidak wajib diisi.</p>
-    <div class="grid">
-      <div class="field full">
-        <label for="pesan">Pesan tambahan <span class="opt">opsional</span></label>
-        <textarea id="pesan" name="pesan" placeholder="Pertanyaan atau catatan untuk panitia..."></textarea>
-      </div>
-    </div>
-
-    <div class="actions">
-      <button type="submit" class="submit" id="submitBtn">Kirim Pendaftaran</button>
-      <span class="status" id="statusText"></span>
-    </div>
-  </form>
-
-  <div class="receipt" id="receipt">
-    <h2>Pendaftaran Terkirim</h2>
-    <p>Data pendaftaran berhasil tersimpan. Silakan simpan konfirmasi ini dan tunggu instruksi selanjutnya dari panitia.</p>
+<header class="hero">
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <span class="big14" aria-hidden="true">14</span>
+  <div class="hero-inner">
+    <span class="badge">Darul Hikmah</span>
+    <h1>Pendaftaran Lomba ICOSA 14</h1>
+    <p>Isi formulir dengan data yang benar dan lengkap. Pendaftaran tercatat otomatis.</p>
+    <ul class="chips">
+      <li>8 cabang lomba</li>
+      <li>Ikhwan &amp; Akhwat</li>
+      <li>Pendaftaran online</li>
+    </ul>
   </div>
+</header>
 
-  <footer class="foot">PANITIA LOMBA ICOSA 14 — DIPROSES SECARA OTOMATIS</footer>
+<main>
+<form id="form" novalidate>
+
+  <section class="card">
+    <h2>Kategori &amp; Lomba</h2>
+    <label>Golongan
+      <div class="radios">
+        <label class="radio"><input type="radio" name="golongan" value="Ikhwan" required> Ikhwan</label>
+        <label class="radio"><input type="radio" name="golongan" value="Akhwat"> Akhwat</label>
+      </div>
+    </label>
+    <label>Pilih lomba
+      <select id="lomba" name="lomba" required disabled>
+        <option value="">Pilih golongan terlebih dahulu</option>
+      </select>
+    </label>
+    <p id="lombaInfo" class="info" hidden></p>
+  </section>
+
+  <section class="card">
+    <h2>Identitas Peserta</h2>
+    <label>Nama lengkap <input name="nama" required autocomplete="name"></label>
+    <div class="row">
+      <label>NIS/NISN <input name="nis" inputmode="numeric" required></label>
+      <label>Kelas <input name="kelas" placeholder="Contoh: X IPA 1" required></label>
+    </div>
+    <label>Asal sekolah <input name="sekolah" required></label>
+    <label>Tanggal lahir <input type="date" name="tgl_lahir" required></label>
+    <label>Foto kartu pelajar <input type="file" name="foto_kartu" accept="image/*" required>
+      <small>Format gambar (JPG/PNG). Ukuran otomatis dikecilkan.</small></label>
+  </section>
+
+  <section class="card" id="anggotaCard" hidden>
+    <h2>Anggota Kelompok</h2>
+    <p class="info">Data di atas adalah data ketua/perwakilan. Tambahkan anggota lain tanpa batas jumlah.</p>
+    <div id="anggotaList"></div>
+    <button type="button" id="addAnggota" class="btn ghost">+ Tambah anggota</button>
+  </section>
+
+  <section class="card">
+    <h2>Kontak</h2>
+    <div class="row">
+      <label>Nomor WhatsApp peserta <input type="tel" name="wa" placeholder="08xxxxxxxxxx" required></label>
+      <label>Email peserta <input type="email" name="email" required></label>
+    </div>
+    <div class="row">
+      <label>Nama pendamping <input name="pendamping" required></label>
+      <label>Nomor WhatsApp pendamping <input type="tel" name="wa_pendamping" placeholder="08xxxxxxxxxx" required></label>
+    </div>
+    <label>Alamat saat ini <textarea name="alamat" rows="3" required></textarea></label>
+  </section>
+
+  <section class="card">
+    <h2>Lampiran Tambahan</h2>
+    <label>Screenshot bukti follow Instagram @official <input type="file" name="bukti_ig" accept="image/*" required></label>
+    <label>Pesan / pertanyaan untuk panitia (opsional) <textarea name="pesan" rows="3"></textarea></label>
+  </section>
+
+  <p id="error" class="error" role="alert" hidden></p>
+  <button type="submit" id="submitBtn" class="btn">Kirim pendaftaran</button>
+</form>
+</main>
+
+<footer class="foot">ICOSA 14 &middot; Darul Hikmah</footer>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="tick" aria-hidden="true">&#10003;</div>
+    <h3 id="modalTitle">Pendaftaran berhasil dikirim</h3>
+    <p id="modalText"></p>
+    <a id="waLink" class="btn" target="_blank" rel="noopener">Konfirmasi ke WhatsApp panitia</a>
+    <button type="button" id="closeModal" class="btn ghost">Tutup</button>
+  </div>
 </div>
-
-<template id="teamMemberTemplate">
-  <div class="team-member">
-    <div class="team-member-head">
-      <span class="team-member-title"></span>
-      <button type="button" class="remove-member">Hapus</button>
-    </div>
-    <div class="grid">
-      <div class="field">
-        <label>Nama lengkap</label>
-        <input type="text" class="tm-nama_lengkap" placeholder="Sesuai kartu pelajar" required>
-        <span class="field-error">Nama lengkap anggota wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label>NIS / NISN</label>
-        <input type="text" class="tm-nisn" inputmode="numeric" placeholder="Nomor induk siswa" required>
-        <span class="field-error">NIS/NISN anggota wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label>Kelas</label>
-        <input type="text" class="tm-kelas" placeholder="Contoh: XI IPA 2" required>
-        <span class="field-error">Kelas anggota wajib diisi.</span>
-      </div>
-      <div class="field">
-        <label>Tanggal lahir</label>
-        <input type="date" class="tm-tanggal_lahir" required>
-        <span class="field-error">Tanggal lahir anggota wajib diisi.</span>
-      </div>
-      <div class="field full">
-        <label>Asal sekolah</label>
-        <input type="text" class="tm-asal_sekolah" placeholder="Nama sekolah lengkap" required>
-        <span class="field-error">Asal sekolah anggota wajib diisi.</span>
-      </div>
-    </div>
-  </div>
-</template>
 
 <script src="script.js"></script>
 </body>
