@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pendaftaran Lomba ICOSA 14 - Darul Hikmah</title>
-<link rel="icon" type="image/x-icon" href="/icon.ico">
+<link rel="icon" type="image/x-icon" href="icon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -30,15 +30,23 @@
 
   <section class="card">
     <h2>Kategori &amp; Lomba</h2>
-    <label>Golongan
+    <fieldset>
+      <legend>Golongan</legend>
       <div class="radios">
         <label class="radio"><input type="radio" name="golongan" value="Ikhwan" required> Ikhwan</label>
         <label class="radio"><input type="radio" name="golongan" value="Akhwat"> Akhwat</label>
       </div>
-    </label>
+    </fieldset>
     <label>Pilih lomba
       <select id="lomba" name="lomba" required disabled>
         <option value="">Pilih golongan terlebih dahulu</option>
+      </select>
+    </label>
+    <label id="kategoriWrap" hidden>Kategori Futsal
+      <select id="kategori" name="kategori">
+        <option value="">Pilih kategori</option>
+        <option value="SD">SD</option>
+        <option value="SMP">SMP</option>
       </select>
     </label>
     <p id="lombaInfo" class="info" hidden></p>
@@ -77,6 +85,13 @@
     <label>Alamat saat ini <textarea name="alamat" rows="3" required></textarea></label>
   </section>
 
+  <section class="card" id="tfCard" hidden>
+    <h2>Bukti Transfer</h2>
+    <p class="info" id="tfInfo"></p>
+    <label>Upload bukti transfer <input type="file" id="buktiTf" name="bukti_tf" accept="image/*">
+      <small>Screenshot atau foto bukti transfer biaya pendaftaran.</small></label>
+  </section>
+
   <section class="card">
     <h2>Lampiran Tambahan</h2>
     <label>Screenshot bukti follow Instagram @official <input type="file" name="bukti_ig" accept="image/*" required></label>
@@ -90,16 +105,41 @@
 
 <footer class="foot">ICOSA 14 &middot; Darul Hikmah</footer>
 
+<!-- Popup peringatan transfer -->
+<div id="payModal" class="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="payTitle">
+    <div class="tick warn" aria-hidden="true">!</div>
+    <h3 id="payTitle">Lomba ini berbayar</h3>
+    <p>Silakan transfer biaya pendaftaran lomba <b id="payLomba"></b> ke nomor berikut, lalu unggah bukti transfer pada formulir.</p>
+    <div class="paybox"><span id="payNomor"></span></div>
+    <button type="button" id="copyNomor" class="btn ghost">Salin nomor</button>
+    <button type="button" id="closePay" class="btn">Saya mengerti</button>
+  </div>
+</div>
+
+<!-- Popup loading -->
+<div id="loadingModal" class="modal" hidden>
+  <div class="modal-box" role="alertdialog" aria-modal="true" aria-live="polite">
+    <div class="spinner" aria-hidden="true"></div>
+    <h3>Mengirim pendaftaran...</h3>
+    <p>Mohon tunggu dan jangan tutup halaman ini.</p>
+  </div>
+</div>
+
+<!-- Popup berhasil -->
 <div id="modal" class="modal" hidden>
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="tick" aria-hidden="true">&#10003;</div>
     <h3 id="modalTitle">Pendaftaran berhasil dikirim</h3>
     <p id="modalText"></p>
-    <a id="waLink" class="btn" target="_blank" rel="noopener">Konfirmasi ke WhatsApp panitia</a>
-    <button type="button" id="closeModal" class="btn ghost">Tutup</button>
+    <button type="button" id="dlBtn" class="btn">Download bukti pendaftaran</button>
+    <a id="cpIkhwan" class="btn ghost" target="_blank" rel="noopener" hidden>Hubungi Contact Person Ikhwan</a>
+    <a id="cpAkhwat" class="btn ghost" target="_blank" rel="noopener" hidden>Hubungi Contact Person Akhwat</a>
+    <button type="button" id="closeModal" class="btn text">Tutup</button>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
