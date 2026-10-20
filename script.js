@@ -26,7 +26,7 @@ const LOMBA = [
     pay: { nomor: "964359834596349" }, cpKategori: { SD: CP.raihan, SMP: CP.zahran } },
   { nama: "Hasta Karya", gol: ["Akhwat"], group: true, paid: false, cp: { Akhwat: CP.atikah } },
   { nama: "Badminton", gol: ["Ikhwan", "Akhwat"], group: false, paid: true,
-    pay: { nomor: "9346083503475" }, cp: { Ikhwan: CP.rizky, Akhwat: CP.atikah } },
+    pay: { nomor: "7146533811" }, cp: { Ikhwan: CP.rizky, Akhwat: CP.atikah } },
   { nama: "MHQ", gol: ["Ikhwan", "Akhwat"], group: false, paid: false, cp: { Ikhwan: CP.gaza, Akhwat: CP.yuna } },
   { nama: "LCCU", gol: ["Ikhwan", "Akhwat"], group: true, paid: false, cp: { Ikhwan: CP.kaysan, Akhwat: CP.nasyifa } },
   { nama: "Kaligrafi", gol: ["Ikhwan", "Akhwat"], group: false, paid: false, cp: { Ikhwan: CP.gibran, Akhwat: CP.rabiah } },
