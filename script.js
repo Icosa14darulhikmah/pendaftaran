@@ -1,5 +1,5 @@
 // ====== PENGATURAN ======
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_nYiGvg7_dVOKRv1BKHihg4zkDIBATzfLoXe9oEOt9iGzdGoa6ondZu8f2g7lhjPMkg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxj0C0F0eAOR_j1c6YJ3xXA9IKvK0HP_uy8GQypdEm9N4G1CBM62q25A46PBg7FtCFQ-A/exec";
 
 // Contact person (format WA: 62xxxx tanpa + dan 0 di depan)
 const CP = {
@@ -142,7 +142,7 @@ function fileToData(file, max = 1200) {
       URL.revokeObjectURL(url);
       resolve(c.toDataURL("image/jpeg", 0.8).split(",")[1]);
     };
-    img.onerror = () => reject(new Error("File harus berupa gambar (JPG/PNG)."));
+    img.onerror = () => reject(new Error("File harus berupa gambar JPG/PNG. Foto HEIC dari iPhone belum didukung, ubah dulu ke JPG."));
     img.src = url;
   });
 }
@@ -240,7 +240,7 @@ function buildReceipt({ l, data, id, waktu }) {
     <h2>Kontak</h2>
     <table>${row("WhatsApp peserta", data.wa)}${row("Email", data.email)}${row("Pendamping", data.pendamping)}${row("WhatsApp pendamping", data.wa_pendamping)}${row("Alamat", data.alamat)}${row("Pesan", data.pesan)}</table>
     <h2>Lampiran</h2>
-    <div class="imgs">${img("Kartu pelajar", data.foto_kartu)}${img("Bukti follow Instagram", data.bukti_ig)}${img("Bukti transfer", data.bukti_tf)}</div>
+    <div class="imgs">${img("Kartu pelajar", data.foto_kartu)}${img("Bukti follow Instagram", data.bukti_ig)}</div>
     <div class="rc-foot">Simpan bukti ini. Tunjukkan kepada panitia bila diperlukan.</div>`;
   return el;
 }
