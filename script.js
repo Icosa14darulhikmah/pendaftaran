@@ -23,10 +23,10 @@ const CP = {
 // cp = contact person per golongan; untuk Futsal contact person per kategori (cpKategori).
 const LOMBA = [
   { nama: "Futsal", gol: ["Ikhwan"], group: true, paid: true, kategori: ["SD", "SMP"],
-    pay: { nomor: "85776212557 (GoPay)" }, cpKategori: { SD: CP.raihan, SMP: CP.zahran } },
+    pay: { nomor: "7044087108 (Andi Noval)" }, cpKategori: { SD: CP.raihan, SMP: CP.zahran } },
   { nama: "Hasta Karya", gol: ["Akhwat"], group: true, paid: false, cp: { Akhwat: CP.atikah } },
   { nama: "Badminton", gol: ["Ikhwan", "Akhwat"], group: false, paid: true,
-    pay: { nomor: "7146533811" }, cp: { Ikhwan: CP.rizky, Akhwat: CP.atikah } },
+    pay: { nomor: "7146533811 (Nur Muhammad)" }, cp: { Ikhwan: CP.rizky, Akhwat: CP.atikah } },
   { nama: "MHQ", gol: ["Ikhwan", "Akhwat"], group: false, paid: false, cp: { Ikhwan: CP.gaza, Akhwat: CP.yuna } },
   { nama: "LCCU", gol: ["Ikhwan", "Akhwat"], group: true, paid: false, cp: { Ikhwan: CP.kaysan, Akhwat: CP.nasyifa } },
   { nama: "Kaligrafi", gol: ["Ikhwan", "Akhwat"], group: false, paid: false, cp: { Ikhwan: CP.gibran, Akhwat: CP.rabiah } },
